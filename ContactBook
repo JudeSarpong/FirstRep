@@ -1,0 +1,255 @@
+//Java code to simulate Contacts
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Main {
+   private static ArrayList<Contact> contacts;
+   private static Scanner scanner;
+   private static int id = 0;
+
+    public static void main(String[] args) {
+        contacts = new ArrayList<>();
+
+        System.out.println("Good day Pal! Welcome to your contact book.");
+        Homepage();
+
+
+
+        }
+
+    private static void Homepage() {
+        System.out.println("What do you want to do?");
+        System.out.println(" Choose from the options below:");
+        System.out.println("""
+                \t1. Manage Contacts
+                \t2. Messages
+                \t3. Quit""");
+        scanner = new Scanner(System.in);
+        int option = scanner.nextInt();
+        switch (option) {
+            case 1 -> ManageContact();
+            case 2 -> {
+                ContactMessages();
+                Homepage();
+            }
+            default -> {
+            }
+        }
+
+        }
+
+    private static void ManageContact() {
+        System.out.println("What do you want to do?");
+        System.out.println("Choose from the options below:");
+        System.out.println("""
+                        
+                        \t1. Show all contacts
+                        \t2. Add a new contact
+                        \t3. Search for a contact
+                        \t4. Delete an contact
+                        \t5. Go back to the previous page""");
+        int option1 = scanner.nextInt();
+        switch (option1) {
+            case 1 -> ShowContacts();
+            case 2 -> AddNewContact();
+            case 3 -> SearchContact();
+            case 4 -> DeleteContact();
+            default -> Homepage();
+    }
+
+}
+
+    private static void ContactMessages() {
+        System.out.println(" The contact message.");
+
+
+        System.out.println("""
+                 Choose from the options below:\t1. Show all messages
+                \t2. Send a message
+                \t3. Go back""");
+
+        int option = scanner.nextInt();
+        switch (option) {
+            case 1 -> showAllMessages();
+            case 2 -> sendAMessage();
+            case 3 -> Homepage();
+        }
+    }
+
+    private static void sendAMessage() {
+        System.out.println("Who are you sending the message to? Enter name:");
+        String Recipient= scanner.next();
+        if(Recipient.equals("")){
+            System.out.println("Please enter a name:");
+            sendAMessage();
+        }
+        boolean isFound = false;
+        for(Contact c: contacts){
+            if (Recipient.equals(c.getName())){
+                isFound = true;
+            }else{
+                isFound = false;
+            }
+        }
+
+        if(isFound){
+            System.out.println("Enter your Message:");
+            String Text = scanner.next();
+            if(Text.equals("")){
+                System.out.println("Please enter some message:");
+                sendAMessage();
+            }else{
+                id++;
+                Messages message = new Messages(Text,Recipient,id);
+                for(Contact c: contacts){
+                    if(Recipient.equals(c.getName())){
+                        ArrayList<Messages> NewMessages = c.getMessages();
+                        NewMessages.add(message);
+                        Contact currentContact = c;
+                        currentContact.setMessages(NewMessages);
+                        contacts.remove(c);
+                        contacts.add(currentContact);
+                    }
+
+                }
+
+
+            }
+        }else {
+            System.out.println("There is no such contact. Check and try again");
+            sendAMessage();
+        }
+    Homepage();
+    }
+
+    private static void showAllMessages() {
+        ArrayList<Messages> AllMessages= new ArrayList<>();
+        for(Contact c:contacts){
+            AllMessages.addAll(c.getMessages());
+        }
+        if(AllMessages.size()>0){
+            for(Messages m: AllMessages){
+                m.getDetails();
+                System.out.println("-----------------");
+            }
+        }else{
+            System.out.println("You do not have any message now.");
+        }
+        Homepage();
+    }
+
+    private static void DeleteContact() {
+
+        System.out.println("Delete contact:");
+        System.out.println("Enter name of contact to delete:");
+        String Name = scanner.next();
+        for(Contact c: contacts){
+            if(c.getName().equals(Name)){
+                contacts.remove(c);
+                System.out.println(Name +" removed successfully");
+            }else{
+                System.out.println(Name +" does not exist n your address book.");
+                System.out.println("""
+                Do you want to try again?
+                \t1. Yes
+                \t2. No""");
+                int option = scanner.nextInt();
+                if(option == 1){
+                    DeleteContact();
+                }else{
+                    ManageContact();
+                }
+            }
+        }
+        //Homepage();
+    }
+
+    private static void AddNewContact() {
+
+        System.out.println("Add new contact:");
+
+        System.out.println("Enter the name of the Person:");
+        String Name = scanner.next();
+        System.out.println("\nEnter the phone number:");
+        String Number = scanner.next();
+        if(Name.equals("") || Number.equals("")){
+            System.out.println(" Please enter the required information");
+            AddNewContact();
+        }
+        boolean isFound = false;
+        for(Contact c: contacts){
+            if(c.getName().equals(Name)){
+                isFound = true;
+                System.out.println("There is a contact saved as "+Name + " already");
+                AddNewContact();
+
+            }else if(c.getNumber().equals(Number)){
+                isFound=true;
+                System.out.println("This number has been saved to a different name already");
+
+
+            }
+        }
+        if(isFound){
+            AddNewContact();
+        }else{
+            Contact contact =new Contact(Name, Number);
+            contacts.add(contact);
+            System.out.println(Name + " added with Success\n");
+            System.out.println("""
+                    What do you want to do again?
+                                
+                    \t1. Add another contact.
+                                
+                    \t2. Go to manage contacts.
+                    """);
+            int option = scanner.nextInt();
+            if (option == 1) {
+                AddNewContact();
+            } else {
+                ManageContact();
+            }
+        }
+
+
+
+
+    }
+
+    private static void ShowContacts() {
+        System.out.println("Show contacts:");
+        for(Contact c: contacts){
+            c.getDetails();
+            System.out.println("-------------------\n");
+        }
+        Homepage();
+    }
+
+    private static void SearchContact() {
+        System.out.println("Enter the contact's name:");
+        String Name = scanner.next();
+        for(Contact c: contacts){
+            if(Name.equals(c.getName())){
+                c.getDetails();
+                System.out.println("\n");
+                ManageContact();
+            }else{
+
+                System.out.println("There is no such name in contacts.\n");
+                System.out.println("""
+                       \t1. Try again.
+                       \t2. Go back to Manage Contacts""");
+                int option = scanner.nextInt();
+                if (option == 1) {
+                    SearchContact();
+                } else {
+                    ManageContact();
+                }
+
+            }
+        }
+    }
+
+}
+
